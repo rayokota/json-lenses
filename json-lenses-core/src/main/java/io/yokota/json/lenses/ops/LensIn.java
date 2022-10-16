@@ -35,7 +35,7 @@ public class LensIn extends LensOp {
         Matcher m = p.matcher(path);
         if (m.find()) {
             ObjectNode copy = patchOp.deepCopy();
-            copy.put("path", path.replace("^/" + name, ""));
+            copy.put("path", path.replaceFirst("^/" + name, ""));
             JsonNode childPatch = JsonLenses.applyLensToPatchOp(lens, copy);
             if (childPatch != null) {
                 copy = childPatch.deepCopy();

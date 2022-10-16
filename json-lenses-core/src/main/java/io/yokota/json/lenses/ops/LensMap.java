@@ -31,7 +31,7 @@ public class LensMap extends LensOp {
         }
         String arrayIndex = m.group(1);
         ObjectNode copy = patchOp.deepCopy();
-        copy.put("path", path.replace("/[0-9]+/", "/"));
+        copy.put("path", path.replaceFirst("/[0-9]+/", "/"));
         JsonNode itemPatch = JsonLenses.applyLensToPatchOp(lens, copy);
         if (itemPatch != null) {
             copy = itemPatch.deepCopy();

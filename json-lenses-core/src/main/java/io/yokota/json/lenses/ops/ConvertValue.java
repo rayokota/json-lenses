@@ -33,7 +33,7 @@ public class ConvertValue extends LensOp {
         if (!path.equals("/" + name)) {
             return patchOp;
         }
-        // TODO check
+        // TODO check stringifiedValue
         String stringifiedValue = patchOp.get("value").toString();
 
         // TODO: should we add in support for fallback/default conversions
