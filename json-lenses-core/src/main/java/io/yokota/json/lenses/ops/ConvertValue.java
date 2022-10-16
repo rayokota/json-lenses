@@ -1,5 +1,8 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.Objects;
 
 public class ConvertValue extends LensOp {
@@ -17,6 +20,29 @@ public class ConvertValue extends LensOp {
 
     public ValueMapping getMapping() {
         return mapping;
+    }
+
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
+        String op = patchOp.get("op").textValue();
+        String path = patchOp.get("path").textValue();
+        if (!op.equals("add") && !op.equals("replace")) {
+            return patchOp;
+        }
+        if (!path.equals("/" + name)) {
+            return patchOp;
+        }
+        // TODO check
+        String stringifiedValue = patchOp.get("value").toString();
+
+        // TODO: should we add in support for fallback/default conversions
+        if (!mapping.getForward().containsKey(stringifiedValue)) {
+            throw new IllegalArgumentException("No mapping for value: " + stringifiedValue);
+        }
+
+        ObjectNode copy = patchOp.deepCopy();
+        copy.put("value", mapping.getForward().get(stringifiedValue));
+        return copy;
     }
 
     @Override

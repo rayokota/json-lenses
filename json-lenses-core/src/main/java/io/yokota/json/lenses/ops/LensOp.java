@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Objects;
 
@@ -30,6 +31,9 @@ public abstract class LensOp {
     public String getType() {
         return type;
     }
+
+
+    public abstract JsonNode apply(JsonNode patchOp);
 
     @Override
     public boolean equals(Object o) {

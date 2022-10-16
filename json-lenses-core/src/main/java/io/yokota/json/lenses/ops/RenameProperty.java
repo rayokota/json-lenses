@@ -1,5 +1,8 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.Objects;
 
 public class RenameProperty extends LensOp {
@@ -17,6 +20,22 @@ public class RenameProperty extends LensOp {
 
     public String getTarget() {
         return target;
+    }
+
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
+        String op = patchOp.get("op").textValue();
+        String path = patchOp.get("path").textValue();
+        // TODO: what about other JSON patch op types?
+        // (consider other parts of JSON patch: move / copy / test / remove ?)
+        if ((op.equals("replace") || op.equals("add")) &&
+            path.split("/")[1].equals(source)) {
+            path = path.replace(source, target);
+            ObjectNode copy = patchOp.deepCopy();
+            copy.put("path", path);
+            return copy;
+        }
+        return patchOp;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.Objects;
 
 public class AddProperty extends LensOp {
@@ -17,6 +19,12 @@ public class AddProperty extends LensOp {
 
     public Object getValue() {
         return value;
+    }
+
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
+        // TODO?
+        return patchOp;
     }
 
     @Override
