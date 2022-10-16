@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-public class LensesTest {
+public class JsonLensesTest {
 
     @Test
     public void testPatchFieldRename() throws Exception {
@@ -23,7 +23,7 @@ public class LensesTest {
 
         LensOp rename = new RenameProperty("title", "name");
         List<LensOp> lensSource = Collections.singletonList(rename);
-        JsonNode lensedPatch = Lenses.applyLensToPatch(lensSource, patches);
+        JsonNode lensedPatch = JsonLenses.applyLensToPatch(lensSource, patches);
 
         System.out.println("*** " + lensedPatch);
     }
@@ -34,7 +34,7 @@ public class LensesTest {
             "\"value\": { \"a\": { \"b\": 5 } } }";
         JsonNode patch = Jackson.newObjectMapper().readTree(patchStr);
 
-        List<JsonNode> expanded = Lenses.expandPatch(patch);
+        List<JsonNode> expanded = JsonLenses.expandPatch(patch);
         System.out.println("*** " + expanded);
     }
 }

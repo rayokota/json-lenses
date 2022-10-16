@@ -39,6 +39,11 @@ public class RenameProperty extends LensOp {
     }
 
     @Override
+    public LensOp reverse() {
+        return new RenameProperty(target, source);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

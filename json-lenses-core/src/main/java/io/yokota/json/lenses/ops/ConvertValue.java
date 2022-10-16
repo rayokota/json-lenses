@@ -3,6 +3,7 @@ package io.yokota.json.lenses.ops;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 public class ConvertValue extends LensOp {
@@ -43,6 +44,14 @@ public class ConvertValue extends LensOp {
         ObjectNode copy = patchOp.deepCopy();
         copy.put("value", mapping.getForward().get(stringifiedValue));
         return copy;
+    }
+
+    @Override
+    public LensOp reverse() {
+        return new ConvertValue(name, new ValueMapping(
+            new HashMap<>(mapping.getReverse()),
+            new HashMap<>(mapping.getForward()))
+        );
     }
 
     @Override

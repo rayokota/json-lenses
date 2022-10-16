@@ -1,14 +1,14 @@
 package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.yokota.json.lenses.Lenses;
+import io.yokota.json.lenses.JsonLenses;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class LensIn extends LensOp {
     private final String name;
@@ -36,7 +36,7 @@ public class LensIn extends LensOp {
         if (m.find()) {
             ObjectNode copy = patchOp.deepCopy();
             copy.put("path", path.replace("^/" + name, ""));
-            JsonNode childPatch = Lenses.applyLensToPatchOp(lens, copy);
+            JsonNode childPatch = JsonLenses.applyLensToPatchOp(lens, copy);
             if (childPatch != null) {
                 copy = childPatch.deepCopy();
                 copy.put("path", "/" + name + childPatch.get("path").textValue());
@@ -46,6 +46,13 @@ public class LensIn extends LensOp {
             }
         }
         return patchOp;
+    }
+
+    @Override
+    public LensOp reverse() {
+        return new LensIn(name, lens.stream()
+            .map(LensOp::reverse)
+            .collect(Collectors.toList()));
     }
 
     @Override

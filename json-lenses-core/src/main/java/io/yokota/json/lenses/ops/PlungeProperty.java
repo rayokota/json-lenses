@@ -45,6 +45,11 @@ public class PlungeProperty extends LensOp {
     }
 
     @Override
+    public LensOp reverse() {
+        return new HoistProperty(name, host);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

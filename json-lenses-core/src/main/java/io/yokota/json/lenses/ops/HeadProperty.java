@@ -62,6 +62,11 @@ public class HeadProperty extends LensOp {
     }
 
     @Override
+    public LensOp reverse() {
+        return new WrapProperty(name);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

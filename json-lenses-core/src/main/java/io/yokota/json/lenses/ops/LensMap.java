@@ -2,12 +2,13 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.yokota.json.lenses.Lenses;
+import io.yokota.json.lenses.JsonLenses;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class LensMap extends LensOp {
     private final List<LensOp> lens;
@@ -31,13 +32,20 @@ public class LensMap extends LensOp {
         String arrayIndex = m.group(1);
         ObjectNode copy = patchOp.deepCopy();
         copy.put("path", path.replace("/[0-9]+/", "/"));
-        JsonNode itemPatch = Lenses.applyLensToPatchOp(lens, copy);
+        JsonNode itemPatch = JsonLenses.applyLensToPatchOp(lens, copy);
         if (itemPatch != null) {
             copy = itemPatch.deepCopy();
             copy.put("path", "/" + arrayIndex + itemPatch.get("path").textValue());
             return copy;
         }
         return null;
+    }
+
+    @Override
+    public LensOp reverse() {
+        return new LensMap(lens.stream()
+            .map(LensOp::reverse)
+            .collect(Collectors.toList()));
     }
 
     @Override

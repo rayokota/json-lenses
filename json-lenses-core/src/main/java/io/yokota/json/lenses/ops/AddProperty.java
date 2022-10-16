@@ -6,19 +6,19 @@ import java.util.Objects;
 
 public class AddProperty extends LensOp {
     private final String name;
-    private final Object value;
+    private final Object defaultValue;
 
-    public AddProperty(String name, Object value) {
+    public AddProperty(String name, Object defaultValue) {
         this.name = name;
-        this.value = value;
+        this.defaultValue = defaultValue;
     }
 
     public String getName() {
         return name;
     }
 
-    public Object getValue() {
-        return value;
+    public Object getDefaultValue() {
+        return defaultValue;
     }
 
     @Override
@@ -28,16 +28,21 @@ public class AddProperty extends LensOp {
     }
 
     @Override
+    public LensOp reverse() {
+        return new RemoveProperty(name, defaultValue);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         AddProperty that = (AddProperty) o;
-        return Objects.equals(name, that.name) && Objects.equals(value, that.value);
+        return Objects.equals(name, that.name) && Objects.equals(defaultValue, that.defaultValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, value);
+        return Objects.hash(super.hashCode(), name, defaultValue);
     }
 }

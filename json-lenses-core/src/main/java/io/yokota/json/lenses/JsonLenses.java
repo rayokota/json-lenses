@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class Lenses {
+public class JsonLenses {
 
     private static final JsonNode EMPTY_DOC = emptyDoc();
 
@@ -64,7 +64,7 @@ public class Lenses {
         return lensOp.apply(patchOp);
     }
 
-    public static List<JsonNode> expandPatch(JsonNode patch) {
+    protected static List<JsonNode> expandPatch(JsonNode patch) {
         String op = patch.get("op").textValue();
         if (!op.equals("add") && !op.equals("replace")) {
             return Collections.singletonList(patch);
@@ -99,7 +99,7 @@ public class Lenses {
         return Collections.singletonList(patch);
     }
 
-
+    @SuppressWarnings("unchecked")
     private static List<JsonNode> flatten(List<?> list) {
         if (list.get(0) instanceof JsonNode) {
             return (List<JsonNode>) list;
@@ -125,6 +125,5 @@ public class Lenses {
         JsonNode target = om.readTree("{\"c\":  1, \"d\":  2}");
         JsonNode patch = JsonDiff.asJson(source, target);
         System.out.println(patch);
-
     }
 }

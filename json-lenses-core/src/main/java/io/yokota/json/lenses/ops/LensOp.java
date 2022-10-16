@@ -35,6 +35,8 @@ public abstract class LensOp {
 
     public abstract JsonNode apply(JsonNode patchOp);
 
+    public abstract LensOp reverse();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
