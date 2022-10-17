@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.Objects;
 
@@ -23,7 +24,12 @@ public class RenameProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
+        Object defaultValue = ctx.getDefaultValue(source);
+        if (defaultValue != null) {
+            ctx.setDefaultValue(target, defaultValue);
+        }
+
         String op = patchOp.get("op").textValue();
         String path = patchOp.get("path").textValue();
         // TODO: what about other JSON patch op types?

@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class ConvertValue extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
         String op = patchOp.get("op").textValue();
         String path = patchOp.get("path").textValue();
         if (!op.equals("add") && !op.equals("replace")) {

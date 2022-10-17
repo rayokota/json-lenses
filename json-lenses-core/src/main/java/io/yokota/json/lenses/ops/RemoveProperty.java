@@ -1,6 +1,7 @@
 package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.Objects;
 
@@ -22,7 +23,9 @@ public class RemoveProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
+        ctx.removeDefaultValue(name);
+
         String path = patchOp.get("path").textValue();
         String[] pathElements = path.split("/");
         boolean match = pathElements.length >= 2 && pathElements[1].equals(name);

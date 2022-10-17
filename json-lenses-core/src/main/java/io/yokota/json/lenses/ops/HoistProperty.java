@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.Objects;
 
@@ -23,7 +24,13 @@ public class HoistProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
+        Object defaultValue = ctx.removeDefaultValue(name);
+        if (defaultValue != null) {
+            Context subctx = ctx.getSubcontext(host);
+            subctx.setDefaultValue(name, defaultValue);
+        }
+
         String path = patchOp.get("path").textValue();
         // leading slash needs trimming
         String[] pathElements = path.substring(1).split("/");

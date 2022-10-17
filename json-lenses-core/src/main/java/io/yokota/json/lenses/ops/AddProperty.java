@@ -1,6 +1,7 @@
 package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.Objects;
 
@@ -22,8 +23,9 @@ public class AddProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
-        // TODO?
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
+        ctx.setDefaultValue(name, defaultValue);
+
         return patchOp;
     }
 

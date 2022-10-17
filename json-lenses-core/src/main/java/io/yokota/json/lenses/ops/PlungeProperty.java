@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,13 @@ public class PlungeProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
+        Context subctx = ctx.getSubcontext(host);
+        Object defaultValue = subctx.removeDefaultValue(name);
+        if (defaultValue != null) {
+            ctx.setDefaultValue(name, defaultValue);
+        }
+
         String path = patchOp.get("path").textValue();
         // leading slash needs trimming
         String[] pathElements = path.substring(1).split("/");

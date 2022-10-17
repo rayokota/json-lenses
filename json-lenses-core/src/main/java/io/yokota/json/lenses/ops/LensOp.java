@@ -3,6 +3,7 @@ package io.yokota.json.lenses.ops;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.Objects;
 
@@ -33,7 +34,7 @@ public abstract class LensOp {
     }
 
 
-    public abstract JsonNode apply(JsonNode patchOp);
+    public abstract JsonNode apply(Context ctx, JsonNode patchOp);
 
     public abstract LensOp reverse();
 

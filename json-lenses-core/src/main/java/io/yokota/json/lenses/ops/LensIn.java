@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 import io.yokota.json.lenses.JsonLenses;
 
 import java.util.List;
@@ -28,7 +29,9 @@ public class LensIn extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
+        Context subctx = ctx.getSubcontext(name);
+
         String path = patchOp.get("path").textValue();
         // Run the inner body in a context where the path has been narrowed down...
         Pattern p = Pattern.compile("^/" + name);
@@ -36,7 +39,7 @@ public class LensIn extends LensOp {
         if (m.find()) {
             ObjectNode copy = patchOp.deepCopy();
             copy.put("path", path.replaceFirst("^/" + name, ""));
-            JsonNode childPatch = JsonLenses.applyLensToPatchOp(lens, copy);
+            JsonNode childPatch = JsonLenses.applyLensToPatchOp(subctx, lens, copy);
             if (childPatch != null) {
                 copy = childPatch.deepCopy();
                 copy.put("path", "/" + name + childPatch.get("path").textValue());

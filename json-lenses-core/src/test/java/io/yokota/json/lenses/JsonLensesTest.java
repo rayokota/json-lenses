@@ -66,9 +66,6 @@ public class JsonLensesTest {
         ArrayNode patches = JsonNodeFactory.instance.arrayNode();
         patches.add(patch);
 
-        List<JsonNode> expanded = JsonLenses.expandPatch(patch);
-        System.out.println("*** " + expanded);
-
         JsonNode lensedPatch = JsonLenses.applyLensToPatch(lensSource, patches);
         System.out.println("*** " + lensedPatch);
     }

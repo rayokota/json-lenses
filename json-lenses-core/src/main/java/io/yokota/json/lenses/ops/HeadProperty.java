@@ -3,6 +3,7 @@ package io.yokota.json.lenses.ops;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -20,7 +21,7 @@ public class HeadProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
         String op = patchOp.get("op").textValue();
         String path = patchOp.get("path").textValue();
         String[] pathElements = path.split("/");

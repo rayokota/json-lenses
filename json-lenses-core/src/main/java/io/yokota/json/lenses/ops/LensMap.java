@@ -2,6 +2,7 @@ package io.yokota.json.lenses.ops;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.yokota.json.lenses.Context;
 import io.yokota.json.lenses.JsonLenses;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class LensMap extends LensOp {
     }
 
     @Override
-    public JsonNode apply(JsonNode patchOp) {
+    public JsonNode apply(Context ctx, JsonNode patchOp) {
         String path = patchOp.get("path").textValue();
         Pattern p = Pattern.compile("/([0-9]+)/");
         Matcher m = p.matcher(path);
@@ -32,7 +33,7 @@ public class LensMap extends LensOp {
         String arrayIndex = m.group(1);
         ObjectNode copy = patchOp.deepCopy();
         copy.put("path", path.replaceFirst("/[0-9]+/", "/"));
-        JsonNode itemPatch = JsonLenses.applyLensToPatchOp(lens, copy);
+        JsonNode itemPatch = JsonLenses.applyLensToPatchOp(ctx, lens, copy);
         if (itemPatch != null) {
             copy = itemPatch.deepCopy();
             copy.put("path", "/" + arrayIndex + itemPatch.get("path").textValue());
