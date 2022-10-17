@@ -79,17 +79,17 @@ public class JsonLenses {
 
         JsonNode value = patch.get("value");
         if (value instanceof ObjectNode || value instanceof ArrayNode) {
-            List<JsonNode> result = new ArrayList<>();
             ObjectNode node = JsonNodeFactory.instance.objectNode();
             node.set("op", patch.get("op"));
             node.set("path", patch.get("path"));
             node.set("value", value instanceof ArrayNode
                 ? JsonNodeFactory.instance.arrayNode()
                 : JsonNodeFactory.instance.objectNode());
-            result.add(node);
 
             Iterable<Map.Entry<String, JsonNode>> iterable = value::fields;
-            List<JsonNode> expand = flatten(StreamSupport.stream(iterable.spliterator(), false)
+            return flatten(Stream.concat(
+                Stream.of(node),
+                StreamSupport.stream(iterable.spliterator(), false)
                     .map(e -> {
                         ObjectNode n = JsonNodeFactory.instance.objectNode();
                         n.set("op", patch.get("op"));
@@ -97,10 +97,8 @@ public class JsonLenses {
                             patch.get("path").textValue() + "/" + e.getKey()));
                         n.set("value", e.getValue());
                         return expandPatch(n);
-                    })
-                    .collect(Collectors.toList()));
-            result.addAll(expand);
-            return result;
+                    }))
+                .collect(Collectors.toList()));
         }
 
         return Collections.singletonList(patch);
@@ -190,16 +188,16 @@ public class JsonLenses {
     @SuppressWarnings("unchecked")
     public static <T> List<T> flatten(Collection<?> collection) {
         List<Object> result = collection.stream()
-                .flatMap(child -> {
-                    if (child == null) {
-                        return Stream.empty();
-                    } else if (child instanceof Collection) {
-                        return flatten((Collection<?>) child).stream();
-                    } else {
-                        return Stream.of(child);
-                    }
-                })
-                .collect(Collectors.toList());
+            .flatMap(child -> {
+                if (child == null) {
+                    return Stream.empty();
+                } else if (child instanceof Collection) {
+                    return flatten((Collection<?>) child).stream();
+                } else {
+                    return Stream.of(child);
+                }
+            })
+            .collect(Collectors.toList());
         return (List<T>) result;
     }
 
@@ -211,7 +209,7 @@ public class JsonLenses {
         }
     }
 
-    public static void main(String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         ObjectMapper om = new ObjectMapper();
         JsonNode source = om.readTree("{\"a\":  1, \"b\":  2}");
         JsonNode target = om.readTree("{\"c\":  1, \"d\":  2}");
