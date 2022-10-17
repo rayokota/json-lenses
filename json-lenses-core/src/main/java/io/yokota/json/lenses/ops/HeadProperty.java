@@ -42,7 +42,7 @@ public class HeadProperty extends LensOp {
             ObjectNode copy = JsonNodeFactory.instance.objectNode();
             copy.put("op", op);
             copy.put("path", "/" + name + (m.group(1) != null ? m.group(1) : ""));
-            copy.putIfAbsent("value", patchOp.get("value"));
+            copy.replace("value", patchOp.get("value"));
             return copy;
         }
 
@@ -51,7 +51,7 @@ public class HeadProperty extends LensOp {
                 ObjectNode copy = JsonNodeFactory.instance.objectNode();
                 copy.put("op", "replace");
                 copy.put("path", "/" + name + (m.group(1) != null ? m.group(1) : ""));
-                copy.putIfAbsent("value", null);
+                copy.replace("value", null);
                 return copy;
             } else {
                 ObjectNode copy = patchOp.deepCopy();

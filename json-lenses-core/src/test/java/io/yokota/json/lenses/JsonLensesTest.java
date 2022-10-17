@@ -3,33 +3,75 @@ package io.yokota.json.lenses;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.yokota.json.lenses.ops.AddProperty;
+import io.yokota.json.lenses.ops.ConvertValue;
 import io.yokota.json.lenses.ops.LensIn;
 import io.yokota.json.lenses.ops.LensMap;
 import io.yokota.json.lenses.ops.LensOp;
 import io.yokota.json.lenses.ops.RenameProperty;
+import io.yokota.json.lenses.ops.ValueMapping;
 import io.yokota.json.lenses.utils.Jackson;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonLensesTest {
 
-    @Test
-    public void testPatchFieldRename() throws Exception {
-        LensOp rename = new RenameProperty("title", "name");
-        List<LensOp> lensSource = Collections.singletonList(rename);
+    private static final List<LensOp> lensSource = new ArrayList<>();
 
+    @BeforeAll
+    public static void init() {
+        lensSource.add(new RenameProperty("title", "name"));
+        lensSource.add(new AddProperty("description", ""));
+        Map<Object, Object> forward = new HashMap<>();
+        forward.put(false, "todo");
+        forward.put(true, "done");
+        Map<Object, Object> reverse = new HashMap<>();
+        reverse.put("todo", false);
+        reverse.put("inProgress", false);
+        reverse.put("done", true);
+        lensSource.add(new ConvertValue("complete", new ValueMapping(forward, reverse)));
+    }
+
+    @Test
+    public void testFieldRename() throws Exception {
         String patchStr = "{ \"op\": \"replace\", \"path\": \"/title\", " +
             "\"value\": \"new title\" }";
         JsonNode patch = Jackson.newObjectMapper().readTree(patchStr);
         ArrayNode patches = JsonNodeFactory.instance.arrayNode();
         patches.add(patch);
 
-        JsonNode lensedPatch = JsonLenses.applyLensToPatch(lensSource, patches);
-        System.out.println("*** " + lensedPatch);
+        ArrayNode lensedPatch = JsonLenses.applyLensToPatch(lensSource, patches);
+        ObjectNode result = (ObjectNode) lensedPatch.get(0);
+        assertThat(result.get("op").textValue()).isEqualTo("replace");
+        assertThat(result.get("path").textValue()).isEqualTo("/name");
+        assertThat(result.get("value").textValue()).isEqualTo("new title");
+
+        patchStr = "{ \"op\": \"replace\", \"path\": \"/name\", " +
+            "\"value\": \"new name\" }";
+        patch = Jackson.newObjectMapper().readTree(patchStr);
+        patches = JsonNodeFactory.instance.arrayNode();
+        patches.add(patch);
+
+        lensedPatch = JsonLenses.applyLensToPatch(JsonLenses.reverse(lensSource), patches);
+        result = (ObjectNode) lensedPatch.get(0);
+        assertThat(result.get("op").textValue()).isEqualTo("replace");
+        assertThat(result.get("path").textValue()).isEqualTo("/title");
+        assertThat(result.get("value").textValue()).isEqualTo("new name");
+
+        String docStr = "{ \"title\": \"hello\" }";
+        JsonNode doc = Jackson.newObjectMapper().readTree(docStr);
+        result = (ObjectNode) JsonLenses.applyLensToDoc(lensSource, doc, null);
+        assertThat(result.get("description").textValue()).isEqualTo("");
+        assertThat(result.get("name").textValue()).isEqualTo("hello");
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 import com.flipkart.zjsonpatch.JsonPatch;
 import io.yokota.json.lenses.ops.LensOp;
+import io.yokota.json.lenses.utils.Convert;
 import io.yokota.json.lenses.utils.Jackson;
 
 import java.util.Collection;
@@ -29,14 +30,39 @@ public class JsonLenses {
         List<LensOp> lens, JsonNode inputDoc, JsonNode targetDoc) {
         ArrayNode patchForOriginalDoc = (ArrayNode) JsonDiff.asJson(EMPTY_DOC, inputDoc);
 
-        JsonNode base = targetDoc != null ? targetDoc : emptyDoc();
-        JsonNode outputPatch = applyLensToPatch(lens, patchForOriginalDoc);
+        Context ctx = new Context();
+        ArrayNode outputPatch = applyLensToPatch(ctx, lens, patchForOriginalDoc);
+        JsonNode base = defaultObjectForContext(ctx);
+        if (targetDoc != null) {
+            base = Jackson.merge(base, targetDoc);
+        }
 
         return JsonPatch.apply(outputPatch, base);
     }
 
+    private static JsonNode defaultObjectForContext(Context ctx) {
+        try {
+            // By setting the root to empty object,
+            // we kick off a recursive process that fills in the entire thing
+            String patchStr = "{ \"op\": \"add\", \"path\": \"\", \"value\": {} }";
+            JsonNode patch = Jackson.newObjectMapper().readTree(patchStr);
+
+            List<JsonNode> defaultsPatch = addDefaultValues(ctx, Collections.singletonList(patch));
+            ArrayNode patches = JsonNodeFactory.instance.arrayNode();
+            patches.addAll(defaultsPatch);
+
+            return JsonPatch.apply(patches, emptyDoc());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public static ArrayNode applyLensToPatch(List<LensOp> lens, ArrayNode patch) {
-        Context ctx = new Context();
+        return applyLensToPatch(new Context(), lens, patch);
+    }
+
+    private static ArrayNode applyLensToPatch(Context ctx, List<LensOp> lens, ArrayNode patch) {
         Iterable<JsonNode> iterable = patch::elements;
         List<JsonNode> lensedPatch = StreamSupport.stream(iterable.spliterator(), false)
             .flatMap(op -> expandPatch(op).stream())
@@ -86,16 +112,16 @@ public class JsonLenses {
 
             Iterable<Map.Entry<String, JsonNode>> iterable = value::fields;
             return flatten(Stream.concat(
-                Stream.of(node),
-                StreamSupport.stream(iterable.spliterator(), false)
-                    .map(e -> {
-                        ObjectNode n = JsonNodeFactory.instance.objectNode();
-                        n.set("op", patch.get("op"));
-                        n.set("path", JsonNodeFactory.instance.textNode(
-                            patch.get("path").textValue() + "/" + e.getKey()));
-                        n.set("value", e.getValue());
-                        return expandPatch(n);
-                    }))
+                    Stream.of(node),
+                    StreamSupport.stream(iterable.spliterator(), false)
+                        .map(e -> {
+                            ObjectNode n = JsonNodeFactory.instance.objectNode();
+                            n.set("op", patch.get("op"));
+                            n.set("path", JsonNodeFactory.instance.textNode(
+                                patch.get("path").textValue() + "/" + e.getKey()));
+                            n.set("value", e.getValue());
+                            return expandPatch(n);
+                        }))
                 .collect(Collectors.toList()));
         }
 
@@ -127,7 +153,7 @@ public class JsonLenses {
                                 if (defaultVal != null) {
                                     ObjectNode copy = patchOp.deepCopy();
                                     copy.put("path", subpath);
-                                    copy.putIfAbsent("value", valueToJsonNode(defaultVal));
+                                    copy.replace("value", Convert.valueToJsonNode(defaultVal));
                                     return addDefaultValues(ctx, Collections.singletonList(copy));
                                 }
                                 return Collections.emptyList();
@@ -136,34 +162,6 @@ public class JsonLenses {
                     .collect(Collectors.toList()));
             })
             .collect(Collectors.toList()));
-    }
-
-    protected static JsonNode valueToJsonNode(Object value) {
-        if (value == null) {
-            return NullNode.getInstance();
-        } else if (value instanceof Byte) {
-            return JsonNodeFactory.instance.numberNode(((Byte) value).intValue());
-        } else if (value instanceof Short) {
-            return JsonNodeFactory.instance.numberNode(((Short) value).intValue());
-        } else if (value instanceof Integer) {
-            return JsonNodeFactory.instance.numberNode(((Integer) value));
-        } else if (value instanceof Long) {
-            return JsonNodeFactory.instance.numberNode(((Long) value));
-        } else if (value instanceof Float) {
-            return JsonNodeFactory.instance.numberNode(((Float) value));
-        } else if (value instanceof Double) {
-            return JsonNodeFactory.instance.numberNode(((Double) value));
-        } else if (value instanceof Boolean) {
-            return JsonNodeFactory.instance.booleanNode(((Boolean) value));
-        } else if (value instanceof String) {
-            return JsonNodeFactory.instance.textNode(((String) value));
-        } else if (value.getClass().isArray()) {
-            // assume array is empty
-            return JsonNodeFactory.instance.arrayNode();
-        } else {
-            // assume object is empty
-            return JsonNodeFactory.instance.objectNode();
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -183,11 +181,13 @@ public class JsonLenses {
     }
 
     public static JsonNode emptyDoc() {
-        try {
-            return Jackson.newObjectMapper().readTree("{}");
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return JsonNodeFactory.instance.objectNode();
+    }
+
+    public static List<LensOp> reverse(List<LensOp> lens) {
+        return lens.stream()
+            .map(LensOp::reverse)
+            .collect(Collectors.toList());
     }
 
     public static void main(String[] args) throws Exception {

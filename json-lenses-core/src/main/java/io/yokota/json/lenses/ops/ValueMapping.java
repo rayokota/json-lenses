@@ -4,19 +4,19 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ValueMapping {
-    private final Map<String, String> forward;
-    private final Map<String, String> reverse;
+    private final Map<Object, Object> forward;
+    private final Map<Object, Object> reverse;
 
-    public ValueMapping(Map<String, String> forward, Map<String, String> reverse) {
+    public ValueMapping(Map<Object, Object> forward, Map<Object, Object> reverse) {
         this.forward = forward;
         this.reverse = reverse;
     }
 
-    public Map<String, String> getForward() {
+    public Map<Object, Object> getForward() {
         return forward;
     }
 
-    public Map<String, String> getReverse() {
+    public Map<Object, Object> getReverse() {
         return reverse;
     }
 

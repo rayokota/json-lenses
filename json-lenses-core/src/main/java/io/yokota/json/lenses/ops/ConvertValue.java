@@ -3,6 +3,7 @@ package io.yokota.json.lenses.ops;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.yokota.json.lenses.Context;
+import io.yokota.json.lenses.utils.Convert;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -34,16 +35,15 @@ public class ConvertValue extends LensOp {
         if (!path.equals("/" + name)) {
             return patchOp;
         }
-        // TODO check stringifiedValue
-        String stringifiedValue = patchOp.get("value").toString();
+        Object value = Convert.jsonNodeToPrimitive(patchOp.get("value"));
 
         // TODO: should we add in support for fallback/default conversions
-        if (!mapping.getForward().containsKey(stringifiedValue)) {
-            throw new IllegalArgumentException("No mapping for value: " + stringifiedValue);
+        if (!mapping.getForward().containsKey(value)) {
+            throw new IllegalArgumentException("No mapping for value: " + value);
         }
 
         ObjectNode copy = patchOp.deepCopy();
-        copy.put("value", mapping.getForward().get(stringifiedValue));
+        copy.put("value", Convert.valueToJsonNode(mapping.getForward().get(value)));
         return copy;
     }
 

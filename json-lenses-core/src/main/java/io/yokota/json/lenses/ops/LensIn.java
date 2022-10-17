@@ -53,9 +53,7 @@ public class LensIn extends LensOp {
 
     @Override
     public LensOp reverse() {
-        return new LensIn(name, lens.stream()
-            .map(LensOp::reverse)
-            .collect(Collectors.toList()));
+        return new LensIn(name, JsonLenses.reverse(lens));
     }
 
     @Override

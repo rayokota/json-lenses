@@ -44,9 +44,7 @@ public class LensMap extends LensOp {
 
     @Override
     public LensOp reverse() {
-        return new LensMap(lens.stream()
-            .map(LensOp::reverse)
-            .collect(Collectors.toList()));
+        return new LensMap(JsonLenses.reverse(lens));
     }
 
     @Override
