@@ -41,20 +41,18 @@ public class JsonLenses {
     }
 
     private static JsonNode defaultObjectForContext(Context ctx) {
-        try {
-            // By setting the root to empty object,
-            // we kick off a recursive process that fills in the entire thing
-            String patchStr = "{ \"op\": \"add\", \"path\": \"\", \"value\": {} }";
-            JsonNode patch = Jackson.newObjectMapper().readTree(patchStr);
+        // By setting the root to empty object,
+        // we kick off a recursive process that fills in the entire thing
+        ObjectNode patch = JsonNodeFactory.instance.objectNode();
+        patch.put("op", "add");
+        patch.put("path", "");
+        patch.set("value", JsonNodeFactory.instance.objectNode());
 
-            List<JsonNode> defaultsPatch = addDefaultValues(ctx, Collections.singletonList(patch));
-            ArrayNode patches = JsonNodeFactory.instance.arrayNode();
-            patches.addAll(defaultsPatch);
+        List<JsonNode> defaultsPatch = addDefaultValues(ctx, Collections.singletonList(patch));
+        ArrayNode patches = JsonNodeFactory.instance.arrayNode();
+        patches.addAll(defaultsPatch);
 
-            return JsonPatch.apply(patches, emptyDoc());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return JsonPatch.apply(patches, emptyDoc());
     }
 
 
