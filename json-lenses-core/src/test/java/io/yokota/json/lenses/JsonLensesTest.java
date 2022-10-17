@@ -75,7 +75,20 @@ public class JsonLensesTest {
     }
 
     @Test
-    public void testDefaults() throws Exception {
+    public void testAddField() throws Exception {
+        String patchStr = "{ \"op\": \"replace\", \"path\": \"/description\", " +
+            "\"value\": \"going swimmingly\" }";
+        JsonNode patch = Jackson.newObjectMapper().readTree(patchStr);
+        ArrayNode patches = JsonNodeFactory.instance.arrayNode();
+        patches.add(patch);
+
+        ArrayNode lensedPatch = JsonLenses.applyLensToPatch(
+            JsonLenses.reverse(lensSource), patches);
+        assertThat(lensedPatch.elements().hasNext()).isFalse();
+    }
+
+    @Test
+    public void testDefaultValues() throws Exception {
         List<LensOp> lensSource = new ArrayList<>();
         AddProperty add1 = new AddProperty("tags", new ArrayList<>());
         lensSource.add(add1);
@@ -113,7 +126,7 @@ public class JsonLensesTest {
     }
 
     @Test
-    public void testExpandPatch() throws Exception {
+    public void testPatchExpander() throws Exception {
         String patchStr = "{ \"op\": \"replace\", \"path\": \"/obj\", " +
             "\"value\": { \"a\": { \"b\": 5 } } }";
         JsonNode patch = Jackson.newObjectMapper().readTree(patchStr);
