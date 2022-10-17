@@ -1,5 +1,6 @@
 package io.yokota.json.lenses;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,5 +50,22 @@ public class Context {
 
     public Map<String, Context> getSubcontexts() {
         return subcontexts;
+    }
+
+    public Context getSubcontextForPath(String path) {
+        return Arrays.stream(path.split("/"))
+            .skip(1)
+            .reduce(this,
+                (prevCtx, pathSegment) -> {
+                    if (pathSegment.matches("[0-9]+")) {
+                        return prevCtx;
+                    } else {
+                        return prevCtx.getSubcontext(pathSegment);
+                    }
+                },
+                (prevCtx, currCtx) -> {
+                    throw new UnsupportedOperationException(); // unused combiner
+                }
+            );
     }
 }

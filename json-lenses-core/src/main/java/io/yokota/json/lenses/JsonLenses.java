@@ -12,8 +12,6 @@ import com.flipkart.zjsonpatch.JsonPatch;
 import io.yokota.json.lenses.ops.LensOp;
 import io.yokota.json.lenses.utils.Jackson;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -118,7 +116,7 @@ public class JsonLenses {
                     return patchOp;
                 }
 
-                Context subctx = getSubcontextForPath(ctx, path);
+                Context subctx = ctx.getSubcontextForPath(path);
 
                 return flatten(Stream.concat(
                         Stream.of(patchOp),
@@ -129,7 +127,7 @@ public class JsonLenses {
                                 if (defaultVal != null) {
                                     ObjectNode copy = patchOp.deepCopy();
                                     copy.put("path", subpath);
-                                    copy.put("value", valueToJsonNode(defaultVal));
+                                    copy.putIfAbsent("value", valueToJsonNode(defaultVal));
                                     return addDefaultValues(ctx, Collections.singletonList(copy));
                                 }
                                 return Collections.emptyList();
@@ -166,23 +164,6 @@ public class JsonLenses {
             // assume object is empty
             return JsonNodeFactory.instance.objectNode();
         }
-    }
-
-    protected static Context getSubcontextForPath(Context ctx, String path) {
-        return Arrays.stream(path.split("/"))
-            .skip(1)
-            .reduce(ctx,
-                (prevCtx, pathSegment) -> {
-                    if (pathSegment.matches("[0-9]+")) {
-                        return prevCtx;
-                    } else {
-                        return prevCtx.getSubcontext(pathSegment);
-                    }
-                },
-                (prevCtx, currCtx) -> {
-                    throw new UnsupportedOperationException(); // unused combiner
-                }
-            );
     }
 
     @SuppressWarnings("unchecked")
