@@ -29,9 +29,12 @@ public class LensIn extends LensOp {
     }
 
     @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
-        Context subctx = ctx.getSubcontext(name);
+    public void apply(Context ctx) {
+        lens.forEach(l -> l.apply(ctx.getSubcontext(name)));
+    }
 
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         String path = patchOp.get("path").textValue();
         // Run the inner body in a context where the path has been narrowed down...
         Pattern p = Pattern.compile("^/" + name);
@@ -39,7 +42,7 @@ public class LensIn extends LensOp {
         if (m.find()) {
             ObjectNode copy = patchOp.deepCopy();
             copy.put("path", path.replaceFirst("^/" + name, ""));
-            JsonNode childPatch = JsonLenses.applyLensToPatchOp(subctx, lens, copy);
+            JsonNode childPatch = JsonLenses.applyLensToPatchOp(lens, copy);
             if (childPatch != null) {
                 copy = childPatch.deepCopy();
                 copy.put("path", "/" + name + childPatch.get("path").textValue());

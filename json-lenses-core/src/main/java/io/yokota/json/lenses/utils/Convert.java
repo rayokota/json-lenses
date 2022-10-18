@@ -1,17 +1,9 @@
 package io.yokota.json.lenses.utils;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.List;
 
 public class Convert {
     private Convert() {
@@ -52,7 +44,7 @@ public class Convert {
             return JsonNodeFactory.instance.booleanNode(((Boolean) value));
         } else if (value instanceof String) {
             return JsonNodeFactory.instance.textNode(((String) value));
-        } else if (value.getClass().isArray()) {
+        } else if (value.getClass().isArray() || value instanceof List) {
             // assume array is empty
             return JsonNodeFactory.instance.arrayNode();
         } else {

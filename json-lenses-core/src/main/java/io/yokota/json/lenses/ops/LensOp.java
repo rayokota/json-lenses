@@ -34,7 +34,9 @@ public abstract class LensOp {
     }
 
 
-    public abstract JsonNode apply(Context ctx, JsonNode patchOp);
+    public abstract void apply(Context ctx);
+
+    public abstract JsonNode apply(JsonNode patchOp);
 
     public abstract LensOp reverse();
 

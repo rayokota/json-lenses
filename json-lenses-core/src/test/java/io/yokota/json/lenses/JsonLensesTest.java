@@ -418,7 +418,7 @@ public class JsonLensesTest {
     @Test
     public void testDefaultValues() throws Exception {
         List<LensOp> lensSource = new ArrayList<>();
-        lensSource.add(new AddProperty("tags", new ArrayList<>()));
+        lensSource.add(new AddProperty("tags", new Object[0]));
         List<LensOp> list1 = new ArrayList<>();
         list1.add(new AddProperty("name", ""));
         list1.add(new AddProperty("color", "#ffffff"));
@@ -427,7 +427,7 @@ public class JsonLensesTest {
         lensSource.add(new AddProperty("metadata", new Object()));
         List<LensOp> list2 = new ArrayList<>();
         list2.add(new AddProperty("title", ""));
-        list2.add(new AddProperty("flags", ""));
+        list2.add(new AddProperty("flags", new Object()));
         list2.add(new LensIn("flags", Collections.singletonList(new AddProperty("O_CREATE", true))));
         lensSource.add(new LensIn("metadata", list2));
         lensSource.add(new AddProperty("assignee", null));
@@ -456,19 +456,15 @@ public class JsonLensesTest {
         patches = createPatch(patchStr);
 
         lensedPatch = JsonLenses.applyLensToPatch(lensSource, patches);
-        /*
         checkPatch((ObjectNode) lensedPatch.get(0), "add", "", new Object());
-        checkPatch((ObjectNode) lensedPatch.get(1), "add", "/tags", new Object[0]);
-        checkPatch((ObjectNode) lensedPatch.get(2), "add", "/metadata", new Object());
-        checkPatch((ObjectNode) lensedPatch.get(3), "add", "/metadata/title", "");
-        checkPatch((ObjectNode) lensedPatch.get(4), "add", "/metadata/flags", new Object());
-        checkPatch((ObjectNode) lensedPatch.get(5), "add", "/metadata/flags/0", "O_CREATE");
-        checkPatch((ObjectNode) lensedPatch.get(6), "add", "/assignee", NullNode.instance);
-
-         */
+        checkPatch((ObjectNode) lensedPatch.get(1), "add", "/metadata", new Object());
+        checkPatch((ObjectNode) lensedPatch.get(2), "add", "/metadata/flags", new Object());
+        checkPatch((ObjectNode) lensedPatch.get(3), "add", "/metadata/flags/O_CREATE", true);
+        checkPatch((ObjectNode) lensedPatch.get(4), "add", "/metadata/title", "");
+        checkPatch((ObjectNode) lensedPatch.get(5), "add", "/tags", new Object[0]);
 
         // works correctly when properties are spread across multiple lenses
-        List<LensOp> v1Tov2Lens = new ArrayList<>();
+        List<LensOp> v1Tov2Lens = new ArrayList<>(lensSource);  // append to lensSource
         v1Tov2Lens.add(new RenameProperty("tags", "labels"));
         AddProperty add1 = new AddProperty("important", false);
         LensMap map2 = new LensMap(Collections.singletonList(add1));
@@ -479,9 +475,9 @@ public class JsonLensesTest {
 
         lensedPatch = JsonLenses.applyLensToPatch(v1Tov2Lens, patches);
         checkPatch((ObjectNode) lensedPatch.get(0), "add", "/labels/123", new Object());
-        checkPatch((ObjectNode) lensedPatch.get(1), "add", "/labels/123/name", "");
-        checkPatch((ObjectNode) lensedPatch.get(2), "add", "/labels/123/color", "#fffffff");
-        checkPatch((ObjectNode) lensedPatch.get(3), "add", "/labels/123/important", false);
+        checkPatch((ObjectNode) lensedPatch.get(1), "add", "/labels/123/important", false);
+        checkPatch((ObjectNode) lensedPatch.get(2), "add", "/labels/123/color", "#ffffff");
+        checkPatch((ObjectNode) lensedPatch.get(3), "add", "/labels/123/name", "");
         checkPatch((ObjectNode) lensedPatch.get(4), "add", "/labels/123/name", "bug");
     }
 

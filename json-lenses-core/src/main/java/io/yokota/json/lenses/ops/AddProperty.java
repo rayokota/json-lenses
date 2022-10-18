@@ -23,9 +23,12 @@ public class AddProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
-        ctx.setDefaultValue(name, defaultValue);
+    public void apply(Context ctx) {
+        ctx.getSubcontext(name).setDefaultValue(defaultValue);
+    }
 
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         return patchOp;
     }
 

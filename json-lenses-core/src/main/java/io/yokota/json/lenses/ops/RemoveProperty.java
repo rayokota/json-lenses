@@ -23,9 +23,12 @@ public class RemoveProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
-        ctx.removeDefaultValue(name);
+    public void apply(Context ctx) {
+        ctx.removeSubcontext(name);
+    }
 
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         String path = patchOp.get("path").textValue();
         String[] pathElements = path.split("/");
         boolean match = pathElements.length > 1 && pathElements[1].equals(name);

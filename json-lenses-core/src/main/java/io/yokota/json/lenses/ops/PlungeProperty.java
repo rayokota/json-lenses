@@ -27,13 +27,16 @@ public class PlungeProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
+    public void apply(Context ctx) {
         Context subctx = ctx.getSubcontext(host);
-        Object defaultValue = subctx.removeDefaultValue(name);
-        if (defaultValue != null) {
-            ctx.setDefaultValue(name, defaultValue);
+        Context subsubctx = subctx.removeSubcontext(name);
+        if (subsubctx != null) {
+            subctx.setSubcontext(name, subsubctx);
         }
+    }
 
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         String path = patchOp.get("path").textValue();
         // leading slash needs trimming
         String[] pathElements = path.substring(1).split("/");

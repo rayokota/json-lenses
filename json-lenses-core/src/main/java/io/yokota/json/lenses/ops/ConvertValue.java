@@ -26,7 +26,11 @@ public class ConvertValue extends LensOp {
     }
 
     @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
+    public void apply(Context ctx) {
+    }
+
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         String op = patchOp.get("op").textValue();
         String path = patchOp.get("path").textValue();
         if (!op.equals("add") && !op.equals("replace")) {

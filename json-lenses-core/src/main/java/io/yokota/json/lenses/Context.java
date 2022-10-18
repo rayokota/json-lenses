@@ -32,18 +32,6 @@ public class Context {
         return result;
     }
 
-    public Object getDefaultValue(String name) {
-        return getSubcontext(name).getDefaultValue();
-    }
-
-    public void setDefaultValue(String name, Object value) {
-        getSubcontext(name).setDefaultValue(value);
-    }
-
-    public Object removeDefaultValue(String name) {
-        return getSubcontext(name).removeDefaultValue();
-    }
-
     public Context getSubcontext(String name) {
         return subcontexts.computeIfAbsent(name, k -> new Context());
     }
@@ -52,6 +40,13 @@ public class Context {
         return subcontexts;
     }
 
+    public void setSubcontext(String name, Context subctx) {
+        subcontexts.put(name, subctx);
+    }
+
+    public Context removeSubcontext(String name) {
+        return subcontexts.remove(name);
+    }
     public Context getSubcontextForPath(String path) {
         return Arrays.stream(path.split("/"))
             .skip(1)

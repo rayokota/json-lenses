@@ -58,7 +58,6 @@ public class JsonLenses {
         return JsonPatch.apply(patches, emptyDoc());
     }
 
-
     public static ArrayNode applyLensToPatch(List<LensOp> lens, ArrayNode patch) {
         return applyLensToPatch(new Context(), lens, patch);
     }
@@ -67,10 +66,11 @@ public class JsonLenses {
         Iterable<JsonNode> iterable = patch::elements;
         List<JsonNode> lensedPatch = StreamSupport.stream(iterable.spliterator(), false)
             .flatMap(op -> expandPatch(op).stream())
-            .map(patchOp -> applyLensToPatchOp(ctx, lens, patchOp))
+            .map(patchOp -> applyLensToPatchOp(lens, patchOp))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
 
+        updateDefaultValues(ctx, lens);
         List<JsonNode> lensedPatchWithDefaults = addDefaultValues(ctx, lensedPatch);
 
         ArrayNode result = JsonNodeFactory.instance.arrayNode();
@@ -78,22 +78,21 @@ public class JsonLenses {
         return result;
     }
 
-    public static JsonNode applyLensToPatchOp(
-        Context ctx, List<LensOp> lens, JsonNode patchOp) {
+    public static JsonNode applyLensToPatchOp(List<LensOp> lens, JsonNode patchOp) {
         return lens.stream()
             .reduce(patchOp,
-                (prevPatch, lensOp) -> applyLensOp(ctx, lensOp, prevPatch),
+                (prevPatch, lensOp) -> applyLensOp(lensOp, prevPatch),
                 (prevPatch, currPatch) -> {
                     throw new UnsupportedOperationException(); // unused combiner
                 }
             );
     }
 
-    private static JsonNode applyLensOp(Context ctx, LensOp lensOp, JsonNode patchOp) {
+    private static JsonNode applyLensOp(LensOp lensOp, JsonNode patchOp) {
         if (patchOp == null) {
             return null;
         }
-        return lensOp.apply(ctx, patchOp);
+        return lensOp.apply(patchOp);
     }
 
     protected static List<JsonNode> expandPatch(JsonNode patch) {
@@ -144,6 +143,10 @@ public class JsonLenses {
         }
     }
 
+    private static void updateDefaultValues(Context ctx, List<LensOp> lens) {
+        lens.forEach(l -> l.apply(ctx));
+    }
+
     protected static List<JsonNode> addDefaultValues(Context ctx, List<JsonNode> patch) {
         return flatten(patch.stream()
             .map(patchOp -> {
@@ -152,7 +155,7 @@ public class JsonLenses {
                 JsonNode value = patchOp.get("value");
                 boolean isMakeMap = (op.equals("add") || op.equals("replace"))
                     && value.isObject()
-                    && !value.elements().hasNext();
+                    && !value.fields().hasNext();
 
                 if (!isMakeMap) {
                     return patchOp;

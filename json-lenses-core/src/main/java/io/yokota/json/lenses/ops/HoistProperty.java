@@ -22,14 +22,17 @@ public class HoistProperty extends LensOp {
     public String getName() {
         return name;
     }
-    @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
-        Object defaultValue = ctx.removeDefaultValue(name);
-        if (defaultValue != null) {
-            Context subctx = ctx.getSubcontext(host);
-            subctx.setDefaultValue(name, defaultValue);
-        }
 
+    @Override
+    public void apply(Context ctx) {
+        Context subctx = ctx.removeSubcontext(name);
+        if (subctx != null) {
+            ctx.setSubcontext(host, subctx);
+        }
+    }
+
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         String path = patchOp.get("path").textValue();
         // leading slash needs trimming
         String[] pathElements = path.substring(1).split("/");

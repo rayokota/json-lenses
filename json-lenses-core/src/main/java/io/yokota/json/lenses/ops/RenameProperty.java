@@ -24,12 +24,15 @@ public class RenameProperty extends LensOp {
     }
 
     @Override
-    public JsonNode apply(Context ctx, JsonNode patchOp) {
-        Object defaultValue = ctx.getDefaultValue(source);
-        if (defaultValue != null) {
-            ctx.setDefaultValue(target, defaultValue);
+    public void apply(Context ctx) {
+        Context subctx = ctx.removeSubcontext(source);
+        if (subctx != null) {
+            ctx.setSubcontext(target, subctx);
         }
+    }
 
+    @Override
+    public JsonNode apply(JsonNode patchOp) {
         String op = patchOp.get("op").textValue();
         String path = patchOp.get("path").textValue();
         String[] pathElements = path.split("/");
