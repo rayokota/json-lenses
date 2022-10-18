@@ -48,7 +48,7 @@ public class Jackson {
         return mapper;
     }
 
-    public static JsonNode merge(JsonNode target, JsonNode source) {
+    public static void merge(JsonNode target, JsonNode source) {
 
         Iterator<String> fieldNames = source.fieldNames();
 
@@ -81,6 +81,5 @@ public class Jackson {
                 }
             }
         }
-        return target;
     }
 }

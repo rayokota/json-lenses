@@ -25,9 +25,9 @@ public class HoistProperty extends LensOp {
 
     @Override
     public void apply(Context ctx) {
-        Context subctx = ctx.removeSubcontext(name);
-        if (subctx != null) {
-            ctx.setSubcontext(host, subctx);
+        Context nameCtx = ctx.getSubcontext(host).removeSubcontext(name);
+        if (nameCtx != null) {
+            ctx.setSubcontext(name, nameCtx);
         }
     }
 

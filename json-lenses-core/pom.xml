@@ -28,11 +28,7 @@
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
         </dependency>
-        <dependency>
-            <groupId>de.bwaldvogel</groupId>
-            <artifactId>mongo-java-server-core</artifactId>
-            <version>1.16.0</version>
-        </dependency><!-- TESTING -->
+        <!-- TESTING -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>

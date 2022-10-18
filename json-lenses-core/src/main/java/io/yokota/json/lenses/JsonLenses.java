@@ -1,11 +1,9 @@
 package io.yokota.json.lenses;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 import com.flipkart.zjsonpatch.JsonPatch;
@@ -37,7 +35,7 @@ public class JsonLenses {
         ArrayNode outputPatch = applyLensToPatch(ctx, lens, patchForOriginalDoc);
         JsonNode base = defaultObjectForContext(ctx);
         if (targetDoc != null) {
-            base = Jackson.merge(base, targetDoc);
+            Jackson.merge(base, targetDoc);
         }
 
         return JsonPatch.apply(outputPatch, base);

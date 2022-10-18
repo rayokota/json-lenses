@@ -142,13 +142,12 @@ public class JsonLensesTest {
         ArrayNode patches = createPatch(patchStr);
 
         ArrayNode lensedPatch = JsonLenses.applyLensToPatch(lensSource, patches);
-        ObjectNode result = (ObjectNode) lensedPatch.get(0);
         checkPatch((ObjectNode) lensedPatch.get(0), "replace", "/metadata/name", "hello");
 
         // works with whole doc conversion
         String docStr = "{ \"metadata\": { \"title\": \"hello\" } }";
         JsonNode doc = mapper.readTree(docStr);
-        result = (ObjectNode) JsonLenses.applyLensToDoc(lensSource, doc, null);
+        ObjectNode result = (ObjectNode) JsonLenses.applyLensToDoc(lensSource, doc, null);
         assertThat(result.get("metadata").get("name").textValue()).isEqualTo("hello");
 
         // doesn't rename another field
@@ -522,9 +521,9 @@ public class JsonLensesTest {
         } else if (value instanceof String) {
             assertThat(patch.get("value").textValue()).isEqualTo(value);
         } else if (value.getClass().isArray()) {
-            assertThat(patch.get("value").isArray());
+            assertThat(patch.get("value").isArray()).isTrue();
         } else {
-            assertThat(patch.get("value").isObject());
+            assertThat(patch.get("value").isObject()).isTrue();
         }
     }
 }

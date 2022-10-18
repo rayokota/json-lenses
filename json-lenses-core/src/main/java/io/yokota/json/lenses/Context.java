@@ -47,6 +47,7 @@ public class Context {
     public Context removeSubcontext(String name) {
         return subcontexts.remove(name);
     }
+
     public Context getSubcontextForPath(String path) {
         return Arrays.stream(path.split("/"))
             .skip(1)

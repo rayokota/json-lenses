@@ -28,10 +28,9 @@ public class PlungeProperty extends LensOp {
 
     @Override
     public void apply(Context ctx) {
-        Context subctx = ctx.getSubcontext(host);
-        Context subsubctx = subctx.removeSubcontext(name);
-        if (subsubctx != null) {
-            subctx.setSubcontext(name, subsubctx);
+        Context nameCtx = ctx.removeSubcontext(name);
+        if (nameCtx != null) {
+            ctx.getSubcontext(host).setSubcontext(name, nameCtx);
         }
     }
 

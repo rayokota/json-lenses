@@ -47,7 +47,7 @@ public class ConvertValue extends LensOp {
         }
 
         ObjectNode copy = patchOp.deepCopy();
-        copy.put("value", Convert.valueToJsonNode(mapping.getForward().get(value)));
+        copy.set("value", Convert.valueToJsonNode(mapping.getForward().get(value)));
         return copy;
     }
 
