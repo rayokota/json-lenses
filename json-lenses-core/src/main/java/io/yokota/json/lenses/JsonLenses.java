@@ -119,8 +119,7 @@ public class JsonLenses {
                                 patch.get("path").textValue() + "/" + e.getKey()));
                             n.set("value", e.getValue());
                             return expandPatch(n);
-                        }))
-                .collect(Collectors.toList()));
+                        })));
         }
 
         return Collections.singletonList(patch);
@@ -156,22 +155,20 @@ public class JsonLenses {
                                 }
                                 return Collections.emptyList();
                             })
-                    )
-                    .collect(Collectors.toList()));
-            })
-            .collect(Collectors.toList()));
+                    ));
+            }));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> List<T> flatten(Collection<?> collection) {
-        List<Object> result = collection.stream()
+    public static <T> List<T> flatten(Stream<?> stream) {
+        List<Object> result = stream
             .flatMap(child -> {
                 if (child == null) {
                     return Stream.empty();
                 } else if (child instanceof Collection) {
-                    return flatten((Collection<?>) child).stream();
+                    return flatten(((Collection<?>) child).stream()).stream();
                 } else {
-                    return Stream.of(child);
+                    return Stream.of((T) child);
                 }
             })
             .collect(Collectors.toList());

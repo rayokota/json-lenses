@@ -26,7 +26,7 @@ public class HeadProperty extends LensOp {
         String path = patchOp.get("path").textValue();
         String[] pathElements = path.split("/");
         // return early if we're not handling a write to the array handled by this lens
-        boolean arrayMatch = pathElements.length >= 2 && pathElements[1].equals(name);
+        boolean arrayMatch = pathElements.length > 1 && pathElements[1].equals(name);
         if (!arrayMatch) {
             return patchOp;
         }

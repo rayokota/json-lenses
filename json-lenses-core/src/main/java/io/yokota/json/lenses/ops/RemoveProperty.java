@@ -28,7 +28,7 @@ public class RemoveProperty extends LensOp {
 
         String path = patchOp.get("path").textValue();
         String[] pathElements = path.split("/");
-        boolean match = pathElements.length >= 2 && pathElements[1].equals(name);
+        boolean match = pathElements.length > 1 && pathElements[1].equals(name);
         if (match) {
             return null;
         }

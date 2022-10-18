@@ -10,20 +10,20 @@ import java.util.List;
 import java.util.Objects;
 
 public class PlungeProperty extends LensOp {
-    private final String name;
     private final String host;
+    private final String name;
 
-    public PlungeProperty(String name, String host) {
-        this.name = name;
+    public PlungeProperty(String host, String name) {
         this.host = host;
-    }
-
-    public String getName() {
-        return name;
+        this.name = name;
     }
 
     public String getHost() {
         return host;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -37,8 +37,7 @@ public class PlungeProperty extends LensOp {
         String path = patchOp.get("path").textValue();
         // leading slash needs trimming
         String[] pathElements = path.substring(1).split("/");
-        if (pathElements.length >= 1 && pathElements[0].equals(name)) {
-            pathElements[0] = "";
+        if (pathElements.length > 0 && pathElements[0].equals(name)) {
             List<String> newPathElements = new ArrayList<>();
             newPathElements.add("");
             newPathElements.add(host);
@@ -53,7 +52,7 @@ public class PlungeProperty extends LensOp {
 
     @Override
     public LensOp reverse() {
-        return new HoistProperty(name, host);
+        return new HoistProperty(host, name);
     }
 
     @Override
@@ -62,11 +61,11 @@ public class PlungeProperty extends LensOp {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         PlungeProperty that = (PlungeProperty) o;
-        return Objects.equals(name, that.name) && Objects.equals(host, that.host);
+        return Objects.equals(host, that.host) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, host);
+        return Objects.hash(super.hashCode(), host, name);
     }
 }

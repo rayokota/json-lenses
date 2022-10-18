@@ -32,10 +32,12 @@ public class RenameProperty extends LensOp {
 
         String op = patchOp.get("op").textValue();
         String path = patchOp.get("path").textValue();
+        String[] pathElements = path.split("/");
         // TODO: what about other JSON patch op types?
         // (consider other parts of JSON patch: move / copy / test / remove ?)
-        if ((op.equals("replace") || op.equals("add")) &&
-            path.split("/")[1].equals(source)) {
+        if ((op.equals("replace") || op.equals("add"))
+            && pathElements.length > 1
+            && pathElements[1].equals(source)) {
             path = path.replace(source, target);
             ObjectNode copy = patchOp.deepCopy();
             copy.put("path", path);
