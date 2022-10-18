@@ -19,13 +19,13 @@ public class Convert {
     }
 
     public static Object jsonNodeToPrimitive(JsonNode node) {
-        if (node == null || node instanceof NullNode) {
+        if (node == null || node.isNull()) {
             return null;
-        } else if (node instanceof NumericNode) {
+        } else if (node.isNumber()) {
             return node.numberValue();
-        } else if (node instanceof BooleanNode) {
+        } else if (node.isBoolean()) {
             return node.booleanValue();
-        } else if (node instanceof TextNode) {
+        } else if (node.isTextual()) {
             return node.textValue();
         } else {
             throw new IllegalArgumentException(

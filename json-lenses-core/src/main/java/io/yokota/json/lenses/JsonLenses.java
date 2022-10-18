@@ -13,8 +13,11 @@ import io.yokota.json.lenses.ops.LensOp;
 import io.yokota.json.lenses.utils.Convert;
 import io.yokota.json.lenses.utils.Jackson;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,18 +103,17 @@ public class JsonLenses {
         }
 
         JsonNode value = patch.get("value");
-        if (value instanceof ObjectNode || value instanceof ArrayNode) {
+        if (value.isObject() || value.isArray()) {
             ObjectNode node = JsonNodeFactory.instance.objectNode();
             node.set("op", patch.get("op"));
             node.set("path", patch.get("path"));
-            node.set("value", value instanceof ArrayNode
+            node.set("value", value.isArray()
                 ? JsonNodeFactory.instance.arrayNode()
                 : JsonNodeFactory.instance.objectNode());
 
-            Iterable<Map.Entry<String, JsonNode>> iterable = value::fields;
             return flatten(Stream.concat(
                     Stream.of(node),
-                    StreamSupport.stream(iterable.spliterator(), false)
+                    entries(value)
                         .map(e -> {
                             ObjectNode n = JsonNodeFactory.instance.objectNode();
                             n.set("op", patch.get("op"));
@@ -125,6 +127,23 @@ public class JsonLenses {
         return Collections.singletonList(patch);
     }
 
+    private static Stream<Map.Entry<Object, JsonNode>> entries(JsonNode value) {
+        if (value.isObject()) {
+            Iterable<Map.Entry<String, JsonNode>> iterable = value::fields;
+            return StreamSupport.stream(iterable.spliterator(), false)
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue()));
+        } else if (value.isArray()) {
+            List<Map.Entry<Object, JsonNode>> elements = new ArrayList<>();
+            int i = 0;
+            for (Iterator<JsonNode> it = value.elements(); it.hasNext(); i++) {
+                elements.add(new AbstractMap.SimpleEntry<>(i, it.next()));
+            }
+            return elements.stream();
+        } else {
+            throw new IllegalArgumentException("Unsupported type " + value.getClass().getName());
+        }
+    }
+
     protected static List<JsonNode> addDefaultValues(Context ctx, List<JsonNode> patch) {
         return flatten(patch.stream()
             .map(patchOp -> {
@@ -132,7 +151,7 @@ public class JsonLenses {
                 String path = patchOp.get("path").textValue();
                 JsonNode value = patchOp.get("value");
                 boolean isMakeMap = (op.equals("add") || op.equals("replace"))
-                    && value instanceof ObjectNode
+                    && value.isObject()
                     && !value.elements().hasNext();
 
                 if (!isMakeMap) {

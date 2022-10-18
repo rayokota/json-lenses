@@ -29,7 +29,7 @@ public class WrapProperty extends LensOp {
         Matcher m = p.matcher(path);
         if (m.find()) {
             path = "/" + m.group(1) + "/0" + m.group(2);
-            if ((op.equals("add") || op.equals("replace)"))
+            if ((op.equals("add") || op.equals("replace"))
                 && value == null && m.group(2).equals("")) {
                 ObjectNode copy = JsonNodeFactory.instance.objectNode();
                 copy.put("op", "remove");
@@ -38,6 +38,7 @@ public class WrapProperty extends LensOp {
             }
             ObjectNode copy = patchOp.deepCopy();
             copy.put("path", path);
+            return copy;
         }
         return patchOp;
     }
