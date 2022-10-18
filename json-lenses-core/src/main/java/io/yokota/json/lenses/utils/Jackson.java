@@ -49,36 +49,32 @@ public class Jackson {
     }
 
     public static void merge(JsonNode target, JsonNode source) {
-
         Iterator<String> fieldNames = source.fieldNames();
-
         while (fieldNames.hasNext()) {
-            String updatedFieldName = fieldNames.next();
-            JsonNode valueToBeUpdated = target.get(updatedFieldName);
-            JsonNode updatedValue = source.get(updatedFieldName);
+            String fieldName = fieldNames.next();
+            JsonNode targetField = target.get(fieldName);
+            JsonNode sourceField = source.get(fieldName);
 
             // If the node is an ArrayNode
-            if (valueToBeUpdated != null && valueToBeUpdated.isArray() &&
-                updatedValue.isArray()) {
+            if (targetField != null && targetField.isArray() && sourceField.isArray()) {
                 // running a loop for all elements of the updated ArrayNode
-                for (int i = 0; i < updatedValue.size(); i++) {
-                    JsonNode updatedChildNode = updatedValue.get(i);
-                    // Create a new Node in the node that should be updated, if there was no corresponding node in it
+                for (int i = 0; i < sourceField.size(); i++) {
+                    JsonNode sourceFieldNode = sourceField.get(i);
+                    // Create a new Node in the node that should be updated,
+                    // if there was no corresponding node in it
                     // Use-case - where the updateNode will have a new element in its Array
-                    if (valueToBeUpdated.size() <= i) {
-                        ((ArrayNode) valueToBeUpdated).add(updatedChildNode);
+                    if (targetField.size() <= i) {
+                        ((ArrayNode) targetField).add(sourceFieldNode);
                     }
                     // getting reference for the node to be updated
-                    JsonNode childNodeToBeUpdated = valueToBeUpdated.get(i);
-                    merge(childNodeToBeUpdated, updatedChildNode);
+                    JsonNode targetFieldNode = targetField.get(i);
+                    merge(targetFieldNode, sourceFieldNode);
                 }
                 // if the Node is an ObjectNode
-            } else if (valueToBeUpdated != null && valueToBeUpdated.isObject()) {
-                merge(valueToBeUpdated, updatedValue);
-            } else {
-                if (target.isObject()) {
-                    ((ObjectNode) target).replace(updatedFieldName, updatedValue);
-                }
+            } else if (targetField != null && targetField.isObject()) {
+                merge(targetField, sourceField);
+            } else if (target.isObject()) {
+                ((ObjectNode) target).replace(fieldName, sourceField);
             }
         }
     }
