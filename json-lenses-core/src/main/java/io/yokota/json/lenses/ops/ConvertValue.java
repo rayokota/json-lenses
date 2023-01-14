@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.yokota.json.lenses.Context;
@@ -12,15 +14,19 @@ public class ConvertValue extends LensOp {
     private final String name;
     private final ValueMapping mapping;
 
-    public ConvertValue(String name, ValueMapping mapping) {
+    @JsonCreator
+    public ConvertValue(@JsonProperty("name") String name,
+                        @JsonProperty("mapping") ValueMapping mapping) {
         this.name = name;
         this.mapping = mapping;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
 
+    @JsonProperty("mapping")
     public ValueMapping getMapping() {
         return mapping;
     }

@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +31,7 @@ public abstract class LensOp {
     public LensOp() {
     }
 
+    @JsonProperty("type")
     public String getType() {
         return type;
     }

@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.yokota.json.lenses.Context;
 
@@ -9,15 +11,19 @@ public class AddProperty extends LensOp {
     private final String name;
     private final Object defaultValue;
 
-    public AddProperty(String name, Object defaultValue) {
+    @JsonCreator
+    public AddProperty(@JsonProperty("name") String name,
+                       @JsonProperty("defaultValue") Object defaultValue) {
         this.name = name;
         this.defaultValue = defaultValue;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
 
+    @JsonProperty("defaultValue")
     public Object getDefaultValue() {
         return defaultValue;
     }

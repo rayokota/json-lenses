@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,10 +14,12 @@ import java.util.regex.Pattern;
 public class HeadProperty extends LensOp {
     private final String name;
 
-    public HeadProperty(String name) {
+    @JsonCreator
+    public HeadProperty(@JsonProperty("name") String name) {
         this.name = name;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }

@@ -32,6 +32,7 @@
 
     <modules>
         <module>json-lenses-core</module>
+        <module>json-lenses-rules</module>
     </modules>
 
     <properties>
@@ -41,11 +42,24 @@
         <assertj.version>3.24.1</assertj.version>
         <junit-jupiter.version>5.9.1</junit-jupiter.version>
         <mockito.version>4.11.0</mockito.version>
+        <schema.registry.version>7.4.0-0</schema.registry.version>
         <zjsonpatch.version>0.4.13</zjsonpatch.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>${schema.registry.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>

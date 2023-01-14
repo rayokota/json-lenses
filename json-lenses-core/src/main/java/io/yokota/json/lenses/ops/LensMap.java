@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.yokota.json.lenses.Context;
@@ -13,10 +15,12 @@ import java.util.regex.Pattern;
 public class LensMap extends LensOp {
     private final List<LensOp> lens;
 
-    public LensMap(List<LensOp> lens) {
+    @JsonCreator
+    public LensMap(@JsonProperty("lens") List<LensOp> lens) {
         this.lens = lens;
     }
 
+    @JsonProperty("lens")
     public List<LensOp> getLens() {
         return lens;
     }

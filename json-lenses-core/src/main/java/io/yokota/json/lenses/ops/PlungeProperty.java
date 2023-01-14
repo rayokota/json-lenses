@@ -1,5 +1,7 @@
 package io.yokota.json.lenses.ops;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.yokota.json.lenses.Context;
@@ -13,15 +15,19 @@ public class PlungeProperty extends LensOp {
     private final String host;
     private final String name;
 
-    public PlungeProperty(String host, String name) {
+    @JsonCreator
+    public PlungeProperty(@JsonProperty("host") String host,
+                          @JsonProperty("name") String name) {
         this.host = host;
         this.name = name;
     }
 
+    @JsonProperty("host")
     public String getHost() {
         return host;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
