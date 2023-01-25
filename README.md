@@ -31,8 +31,8 @@ The following JSON Lenses are supported:
 - HoistProperty - move a property up one level
 	- host - the source object
 	- name - the property name
-- In - apply a list of lens to a subtree
-	- name - the property name for the subtree
+- In - apply a list of lens to a property
+	- name - the property name
 	- lens - the list of lens
 - Map - apply a list of lens to an array
    - lens - the list of lens
