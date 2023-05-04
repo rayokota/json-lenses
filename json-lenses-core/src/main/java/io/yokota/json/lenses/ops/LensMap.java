@@ -33,14 +33,14 @@ public class LensMap extends LensOp {
     @Override
     public JsonNode apply(JsonNode patchOp) {
         String path = patchOp.get("path").textValue();
-        Pattern p = Pattern.compile("/([0-9]+)/");
+        Pattern p = Pattern.compile("^/([0-9]+)/");
         Matcher m = p.matcher(path);
         if (!m.find()) {
             return patchOp;
         }
         String arrayIndex = m.group(1);
         ObjectNode copy = patchOp.deepCopy();
-        copy.put("path", path.replaceFirst("/[0-9]+/", "/"));
+        copy.put("path", path.replaceFirst("^/[0-9]+/", "/"));
         JsonNode itemPatch = JsonLenses.applyLensToPatchOp(lens, copy);
         if (itemPatch != null) {
             copy = itemPatch.deepCopy();
