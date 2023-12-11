@@ -43,7 +43,7 @@
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
         <mockito.version>5.6.0</mockito.version>
         <schema.registry.version>7.4.0</schema.registry.version>
-        <zjsonpatch.version>0.4.14</zjsonpatch.version>
+        <zjsonpatch.version>0.4.16</zjsonpatch.version>
     </properties>
 
     <repositories>
